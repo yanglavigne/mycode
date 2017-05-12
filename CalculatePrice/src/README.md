@@ -1,6 +1,31 @@
-1、JudgeFestival.java判断是否为法定节假日
+0、后台项目查看mybits执行语句
+BoundSql sql=
+this.getSqlSession().getConfiguration().getMappedStatement(
+getMapperNamespace() + "." + listId).getBoundSql(params);			
+logger.info("拦截的SQL:"+sql.getSql());
 
-2、ComputeTimePrice根据需求计算价钱
+1、controller--service(getPrice)--service(computedZC)
+--ComputeTimePrice(calPrice)--ComputeTimePrice(from_16_to_22)
+--ComputeTimePrice(isHolidays)--JudgeFestivalService(isHolidays)
+
+service中注入：
+@Autowired
+private JudgeFestivalService judgeFestivalService;
+
+
+ComputeTimePrice computeTimePrice = new ComputeTimePrice(chargeStandard,priceDto,judgeFestivalService);
+		Map<String,Object> result = new HashMap<String,Object>();
+		result = computeTimePrice.calPrice(priceDto);
+		
+ComputeTimePrice中：
+JudgeFestivalService judgeFestivalService;		
+构造器中：this.judgeFestivalService=judgeFestivalService;
+isHolidays中：isHolidays= judgeFestivalService.isHolidays(start_date);		
+	
+
+2、JudgeFestival.java判断是否为法定节假日
+
+3、ComputeTimePrice根据需求计算价钱
 
 另加：夜间时长附加费目前还是按0.5元/分钟收取（舒适、商务/多功能、豪华）
 高峰时间段：7：00-10：00 、16：00-22：00（法定节假日除外）
@@ -11,7 +36,7 @@
 回空里程附加费：如果形成超过了15公里开始计算回空里程附加费。如果存在套餐（是走完套餐公里数再开始计算公里数超不超过15公里）
 
 
-3、表设计
+4、表设计
 
 INSERT INTO `b_sys_dict`(USE_TYPE,DICT_TYPE,DICT_NAME,DICT_VALUE,DESCRIPTION,DEL_FLAG,CREATE_BY,CREATE_DATE,UPDATE_BY,UPDATE_DATE,VERSION,CITY_ID,city)  VALUES ('0', '节假日', '节假日', '2017-01-01,2017-01-02,2017-01-27,2017-01-28,2017-01-29,2017-01-30,2017-01-31,2017-02-01,2017-02-02,2017-04-02,2017-04-03,2017-04-04,2017-04-29,2017-04-30,2017-05-01,2017-05-28,2017-05-29,2017-05-30,2017-10-01,2017-10-02,2017-10-03,2017-10-04,2017-10-05,2017-10-06,2017-10-07,2017-10-08', '2017年节假日', '1', null, null, null, null, '1', null, null);
 INSERT INTO `b_sys_dict`(USE_TYPE,DICT_TYPE,DICT_NAME,DICT_VALUE,DESCRIPTION,DEL_FLAG,CREATE_BY,CREATE_DATE,UPDATE_BY,UPDATE_DATE,VERSION,CITY_ID,city)  VALUES ('0', '法定工作日', '法定工作日', '2017-01-22,2017-02-04,2017-04-01,2017-05-27,2017-09-30', '2017年法定工作日', '1', null, null, null, null, '1', null, null);
